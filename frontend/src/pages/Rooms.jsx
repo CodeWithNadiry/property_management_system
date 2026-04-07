@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import DataTable from "../components/DataTable";
 import useModalStore from "../store/ModalStore";
 import useAuthStore from "../store/AuthStore";
 import usePropertyStore from "../store/PropertyStore";
+import { deleteRoom, getAllRooms } from "../api/rooms.service";
 
 const Rooms = ({ onDashboard }) => {
   const { openModal } = useModalStore();
@@ -19,11 +19,8 @@ const Rooms = ({ onDashboard }) => {
   // Fetch rooms
   const fetchRooms = async () => {
     if (!token || !propertyId) return [];
-    const res = await axios.get("http://localhost:5000/rooms", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { property_id: propertyId },
-    });
-    return res.data.rooms;
+    const rooms = await getAllRooms(propertyId);
+    return rooms;
   };
 
   const {
@@ -38,13 +35,15 @@ const Rooms = ({ onDashboard }) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (id) => {
-      await axios.delete(`http://localhost:5000/rooms/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await deleteRoom(id);
     },
-    onSuccess: () => {
+    onSuccess: (message) => {
+      alert(message)
       queryClient.invalidateQueries(["rooms", propertyId]);
     },
+    onError(error) {
+      alert(error.response?.data?.message)
+    }
   });
 
   const handleDelete = (id) => {

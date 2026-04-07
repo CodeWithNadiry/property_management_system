@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import useAuthStore from "../store/AuthStore";
 import usePropertyStore from "../store/PropertyStore";
 import useModalStore from "../store/ModalStore";
@@ -7,16 +6,11 @@ import { formattedPrice } from "../utils/formattedPrice";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import { formattedDate } from "../utils/formattedDate";
+import { getAllReservations } from "../api/reservations.service";
 
-async function fetchReservations(token, propertyId) {
+async function fetchReservations( propertyId) {
   if (!propertyId) return [];
-  const res = await axios.get(
-    `http://localhost:5000/reservations?property_id=${propertyId}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
-  return res.data.reservations;
+  return await getAllReservations(propertyId)
 }
 
 const Reservations = () => {
@@ -32,7 +26,7 @@ const Reservations = () => {
     isError,
   } = useQuery({
     queryKey: ["reservations", propertyId],
-    queryFn: () => fetchReservations(token, propertyId),
+    queryFn: () => fetchReservations(propertyId),
     enabled: !!token && !!propertyId,
   });
 

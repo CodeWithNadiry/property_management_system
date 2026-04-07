@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import useAuthStore from "../store/AuthStore";
 import useModalStore from "../store/ModalStore";
 import { useActionState } from "react";
@@ -12,12 +11,12 @@ import {
 } from "react-icons/hi";
 import Button from "../components/Button";
 import usePropertyStore from "../store/PropertyStore";
+import { createUser, updateUser } from "../api/users.service";
 
 async function userAction(
   prevState,
   formData,
   isEdit,
-  token,
   userId,
   closeModal,
   propertyId
@@ -47,19 +46,9 @@ async function userAction(
     }
 
     if (isEdit) {
-      await axios.patch(`http://localhost:5000/users/${userId}`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {property_id: propertyId}
-      });
+      await updateUser(userId, payload, propertyId)
     } else {
-      await axios.post("http://localhost:5000/users", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {property_id: propertyId}
-      });
+      await createUser(payload, propertyId)
     }
 
     closeModal();
@@ -74,7 +63,7 @@ async function userAction(
 }
 
 const UserForm = ({ data }) => {
-  const { token, role, user } = useAuthStore();
+  const {  role, user } = useAuthStore();
   const { activeProperty } = usePropertyStore();
   const { closeModal } = useModalStore();
   const propertyId = role === 'superadmin' ? activeProperty?.id : user?.property_id;
@@ -113,7 +102,7 @@ const UserForm = ({ data }) => {
 
   const [formState, formAction] = useActionState(
     (prev, formData) =>
-      userAction(prev, formData, isEdit, token, data?.id, closeModal, propertyId),
+      userAction(prev, formData, isEdit, data?.id, closeModal, propertyId),
     { error: null },
   );
 

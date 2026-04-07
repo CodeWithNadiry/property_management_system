@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthStore from "../store/AuthStore";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import useModalStore from "../store/ModalStore";
+import { createProperty, updateProperty } from "../api/property.service";
 
 const PropertyForm = ({ data }) => {
-  const { token } = useAuthStore();
   const [name, setName] = useState("");
   const [error, setError] = useState(null);
   const {closeModal} = useModalStore();
@@ -36,13 +34,9 @@ const PropertyForm = ({ data }) => {
       const payload = { name };
 
       if (isEdit) {
-        await axios.patch(`http://localhost:5000/properties/${data.id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await updateProperty(data.id, payload)
       } else {
-        await axios.post("http://localhost:5000/properties", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await createProperty(payload)
       }
 
       window.location.reload(); // reload to see updated list

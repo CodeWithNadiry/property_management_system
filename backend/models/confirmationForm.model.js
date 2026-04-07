@@ -41,7 +41,7 @@ ConfirmationForm.belongsTo(Reservation, {
 });
 
 Reservation.hasOne(ConfirmationForm, {
-  foreignKey: "reservation_id",
+  foreignKey: "reservation_id", onDelete: 'CASCADE'
 });
 
 export default ConfirmationForm;

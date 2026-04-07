@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import useAuthStore from "../store/AuthStore";
 import useModalStore from "../store/ModalStore";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import usePropertyStore from "../store/PropertyStore";
+import { createRoom, updateRoom } from "../api/rooms.service";
 
 const RoomForm = ({ data }) => {
-  const { token, role, user } = useAuthStore();
+  const { role, user } = useAuthStore();
   const { closeModal } = useModalStore();
   const queryClient = useQueryClient();
   const { activeProperty } = usePropertyStore();
   const isEdit = !!data;
-  const propertyId = role === "superadmin" ? activeProperty?.id : user?.property_id;
+  const propertyId =
+    role === "superadmin" ? activeProperty?.id : user?.property_id;
 
   const [roomNumber, setRoomNumber] = useState("");
   const [floor, setFloor] = useState("");
@@ -26,7 +27,7 @@ const RoomForm = ({ data }) => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRoomNumber(data.room_number ?? "");
       setFloor(data.floor ?? "");
-      setUnitGroupId(data.unit_group_id ?? '')
+      setUnitGroupId(data.unit_group_id ?? "");
     }
   }, [data]);
 
@@ -47,15 +48,9 @@ const RoomForm = ({ data }) => {
       };
 
       if (isEdit) {
-        await axios.patch(`http://localhost:5000/rooms/${data.id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: {property_id: propertyId}
-        });
+        await updateRoom(data.id, payload, propertyId);
       } else {
-        await axios.post("http://localhost:5000/rooms", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { property_id: propertyId },
-        });
+        await createRoom(payload, propertyId);
       }
 
       queryClient.invalidateQueries(["rooms"]);
@@ -84,6 +79,13 @@ const RoomForm = ({ data }) => {
       />
 
       <Input
+        label="Unit Group ID"
+        type="number"
+        value={unitGroupId}
+        onChange={(e) => setUnitGroupId(e.target.value)}
+        placeholder="Enter unit group ID"
+      />
+      <Input
         label="Floor (optional)"
         type="number"
         value={floor}
@@ -91,13 +93,6 @@ const RoomForm = ({ data }) => {
         placeholder="Enter floor"
       />
 
-      <Input
-        label="Unit Group ID"
-        type="number"
-        value={unitGroupId}
-        onChange={(e) => setUnitGroupId(e.target.value)}
-        placeholder="Enter unit group ID"
-      />
       <div className="flex gap-4 mt-5">
         <Button type="submit">{isEdit ? "Update" : "Add"}</Button>
         <Button type="button" variant="secondary" onClick={closeModal}>

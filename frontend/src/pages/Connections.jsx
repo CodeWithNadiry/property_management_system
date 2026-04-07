@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import DataTable from "../components/DataTable";
 import useAuthStore from "../store/AuthStore";
 import useModalStore from "../store/ModalStore";
 import usePropertyStore from "../store/PropertyStore";
+import { deleteConnection, getAllConnections } from "../api/connection.service";
 const Connections = () => {
   console.log('connections.jsx is running')
   const { token, role, user } = useAuthStore();
@@ -17,11 +17,7 @@ const Connections = () => {
   // Fetch room-lock connections
   const fetchConnections = async () => {
     if (!token || !propertyId) return [];
-    const res = await axios.get("http://localhost:5000/room-lock", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { property_id: propertyId },
-    });
-    return res.data;
+    return await getAllConnections(propertyId)
   };
 
   const {
@@ -37,11 +33,7 @@ const Connections = () => {
   // Mutation to unassign a lock
   const unassignMutation = useMutation({
     mutationFn: async (lockId) => {
-      await axios.post(
-        "http://localhost:5000/room-lock/unassign",
-        { lock_id: lockId },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+     return await deleteConnection(lockId)
     },
     onSuccess: () => queryClient.invalidateQueries(["roomLocks", propertyId]),
   });

@@ -107,7 +107,11 @@ export async function updateRoom(req, res, next) {
 }
 
 export async function deleteRoom(req, res, next) {
-  const room = await deleteRoomService(req.params.id);
-  if (!room) return res.status(404).json({ message: "Room not found" });
-  res.json({ message: "Room deleted" });
+  try {
+    const room = await deleteRoomService(req.params.id);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+    res.json({ message: "Room deleted" });
+  } catch (error) {
+    next(error);
+  }
 }

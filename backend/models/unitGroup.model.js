@@ -32,6 +32,6 @@ const UnitGroup = sequelize.define(
 );
 
 UnitGroup.belongsTo(Property, { foreignKey: "property_id" });
-Property.hasMany(UnitGroup, { foreignKey: "property_id" });
+Property.hasMany(UnitGroup, { foreignKey: "property_id", onDelete: 'CASCADE' });
 
 export default UnitGroup;
