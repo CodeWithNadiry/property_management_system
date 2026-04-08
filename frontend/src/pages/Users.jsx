@@ -12,11 +12,11 @@ const Users = ({ onDashboard }) => {
 
   const token = useAuthStore((state) => state.token);
   const role = useAuthStore((state) => state.role);
-  const user = useAuthStore(({user}) => user)
+  const user = useAuthStore(({ user }) => user);
   const propertyId =
     role === "superadmin" ? activeProperty?.id : user?.property_id;
 
-  const isAdmin = role === "admin" || role === 'superadmin';
+  const isAdmin = role === "admin" || role === "superadmin";
 
   const fetchUsers = async () => {
     if (!token || !propertyId) return [];
@@ -35,12 +35,12 @@ const Users = ({ onDashboard }) => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId) => {
-      return await deleteUser(userId)
+      return await deleteUser(userId);
     },
     onSuccess: (message) => {
-      queryClient.invalidateQueries(["users", propertyId])
+      queryClient.invalidateQueries(["users", propertyId]);
       if (message) {
-        alert(message)
+        alert(message);
       }
     },
     onError: (err) => {
@@ -63,7 +63,7 @@ const Users = ({ onDashboard }) => {
     { header: "Name", accessor: "name" },
     { header: "Email", accessor: "email" },
     { header: "Role", accessor: "role" },
-    { header: "Status", accessor: "is_active"},
+    { header: "Status", accessor: "is_active" },
   ];
 
   const actions = isAdmin
@@ -90,9 +90,7 @@ const Users = ({ onDashboard }) => {
       actions={actions}
       isLoading={isLoading}
       isError={isError}
-      onAdd={
-        isAdmin && !onDashboard ? () => openModal("users") : undefined
-      }
+      onAdd={isAdmin && !onDashboard ? () => openModal("users") : undefined}
     />
   );
 };

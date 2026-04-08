@@ -13,15 +13,15 @@ export const isAuth = (req, res, next) => {
   }
 
   try {
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-  req.userId = decodedToken.userId;
-  req.userRole = decodedToken.role;
-  req.userPropertyId = decodedToken.property_id;
+    req.userId = decodedToken.userId;
+    req.userRole = decodedToken.role;
+    req.userPropertyId = decodedToken.property_id;
 
-  next();
-} catch (err) {
-  console.log("JWT ERROR:", err.message);
-  return res.status(401).json({ message: "Invalid or expired token." });
-}
+    next();
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
+    return res.status(401).json({ message: "Invalid or expired token." });
+  }
 };

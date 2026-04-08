@@ -1,5 +1,17 @@
 import { Router } from "express";
-import {create, update, getAll, get, cancel, getConfirmationData, confirm, checkIn, checkOut, noShow, frontDeskCheckIn} from '../controllers/reservation.controller.js'
+import {
+  create,
+  update,
+  getAll,
+  get,
+  cancel,
+  getConfirmationData,
+  confirm,
+  checkIn,
+  checkOut,
+  noShow,
+  frontDeskCheckIn,
+} from "../controllers/reservation.controller.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import {
   createReservationSchema,
@@ -14,9 +26,9 @@ const router = Router();
 router.post(
   "/",
   validateRequest(createReservationSchema), // single schema body => default;
-// createReservationSchema is a Joi schema.
-// It has .validate → true
-// schemaMap becomes { body: createReservationSchema }
+  // createReservationSchema is a Joi schema.
+  // It has .validate → true
+  // schemaMap becomes { body: createReservationSchema }
   isAuth,
   create,
 );

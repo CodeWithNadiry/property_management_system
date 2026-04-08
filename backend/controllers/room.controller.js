@@ -85,7 +85,7 @@ export async function getAllAvailables(req, res, next) {
     });
 
     const availableRooms = rooms.filter(
-      (room) => room.Reservations.length === 0
+      (room) => room.Reservations.length === 0,
     );
 
     res.status(200).json({ availableRooms });
@@ -104,7 +104,7 @@ export async function update(req, res, next) {
     const room = await roomService.updateRoom(
       req.params.id,
       value,
-      property_id
+      property_id,
     );
 
     if (!room) {

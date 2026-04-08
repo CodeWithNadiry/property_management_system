@@ -54,7 +54,7 @@ const Room = sequelize.define(
   {
     tableName: "rooms",
     timestamps: false,
-  }
+  },
 );
 
 Room.belongsTo(Property, { foreignKey: "property_id" });

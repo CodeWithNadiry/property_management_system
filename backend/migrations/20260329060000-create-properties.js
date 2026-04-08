@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('properties', {
+  await queryInterface.createTable("properties", {
     id: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -15,11 +15,11 @@ export async function up(queryInterface, Sequelize) {
     created_at: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.literal('NOW()'),
+      defaultValue: Sequelize.literal("NOW()"),
     },
   });
 }
 
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('properties');
+  await queryInterface.dropTable("properties");
 }

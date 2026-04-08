@@ -64,9 +64,9 @@ const RoomLockForm = ({ data }) => {
       };
 
       if (isEdit) {
-        await editConnection(data.id, payload, propertyId)
+        await editConnection(data.id, payload, propertyId);
       } else {
-        await createConnection(payload, propertyId)
+        await createConnection(payload, propertyId);
       }
 
       queryClient.invalidateQueries(["locks", "rooms"]);
@@ -102,7 +102,9 @@ const RoomLockForm = ({ data }) => {
             ))}
           </select>
         </>
-      ): <p>No locks available</p>}
+      ) : (
+        <p>No locks available</p>
+      )}
 
       {unAssignedRooms?.length > 0 ? (
         <>
@@ -121,7 +123,9 @@ const RoomLockForm = ({ data }) => {
             ))}
           </select>
         </>
-      ): <p>No rooms available</p>}
+      ) : (
+        <p>No rooms available</p>
+      )}
       <input type="hidden" name="lockId" value={selectedLockId} />
       <input type="hidden" name="roomId" value={selectedRoomId} />
 

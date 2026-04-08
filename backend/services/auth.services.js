@@ -24,7 +24,7 @@ export const authService = {
         property_id: user.property_id || null,
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN },
     );
   },
 };

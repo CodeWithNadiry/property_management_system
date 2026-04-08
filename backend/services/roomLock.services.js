@@ -15,12 +15,10 @@ export const roomLockService = {
     if (!lock) throw new AppError("Lock not found", 404);
 
     const roomAlreadyUsed = await RoomLock.findOne({ where: { room_id } });
-    if (roomAlreadyUsed)
-      throw new AppError("Room already has a lock", 422);
+    if (roomAlreadyUsed) throw new AppError("Room already has a lock", 422);
 
     const lockAlreadyUsed = await RoomLock.findOne({ where: { lock_id } });
-    if (lockAlreadyUsed)
-      throw new AppError("Lock already assigned", 422);
+    if (lockAlreadyUsed) throw new AppError("Lock already assigned", 422);
 
     return await RoomLock.create({ room_id, lock_id, property_id });
   },
@@ -36,15 +34,13 @@ export const roomLockService = {
       where: { room_id, id: { [Op.ne]: id } },
     });
 
-    if (roomUsed)
-      throw new AppError("Room already has a lock", 422);
+    if (roomUsed) throw new AppError("Room already has a lock", 422);
 
     const lockUsed = await RoomLock.findOne({
       where: { lock_id, id: { [Op.ne]: id } },
     });
 
-    if (lockUsed)
-      throw new AppError("Lock already assigned", 422);
+    if (lockUsed) throw new AppError("Lock already assigned", 422);
 
     const room = await Room.findByPk(room_id);
     if (!room) throw new AppError("Room not found", 404);
@@ -58,7 +54,7 @@ export const roomLockService = {
   },
 
   async deleteConnection(id) {
-    const conn = await RoomLock.findByPk(id)
+    const conn = await RoomLock.findByPk(id);
     if (!conn) throw new AppError("Connection not found", 404);
 
     await conn.destroy();
@@ -73,8 +69,7 @@ export const roomLockService = {
   },
 
   async getUnAssignedLocks(property_id) {
-    if (!property_id)
-      throw new AppError("property_id is required", 400);
+    if (!property_id) throw new AppError("property_id is required", 400);
 
     const locks = await Lock.findAll({
       where: { property_id },
@@ -93,8 +88,7 @@ export const roomLockService = {
   },
 
   async getUnAssignedRooms(property_id) {
-    if (!property_id)
-      throw new AppError("property_id is required", 400);
+    if (!property_id) throw new AppError("property_id is required", 400);
 
     const rooms = await Room.findAll({
       where: { property_id },

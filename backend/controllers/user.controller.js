@@ -15,15 +15,20 @@ export async function create(req, res, next) {
     }
 
     if (req.userRole === "admin" && role === "admin") {
-      return res.status(403).json({ message: "Admin cannot create another admin" });
+      return res
+        .status(403)
+        .json({ message: "Admin cannot create another admin" });
     }
 
     if (role === "staff" && !property_id) {
-      return res.status(422).json({ message: "Staff must be assigned to a property" });
+      return res
+        .status(422)
+        .json({ message: "Staff must be assigned to a property" });
     }
 
     if (role === "admin") {
-      const adminAlreadyExist = await userService.findAdminByProperty(property_id);
+      const adminAlreadyExist =
+        await userService.findAdminByProperty(property_id);
       if (adminAlreadyExist) {
         return res.status(422).json({
           message: "Admin already exist in this property",
@@ -92,7 +97,9 @@ export async function update(req, res, next) {
     }
 
     if (req.userRole === "admin" && value.role === "admin") {
-      return res.status(403).json({ message: "Admin cannot assign admin role" });
+      return res
+        .status(403)
+        .json({ message: "Admin cannot assign admin role" });
     }
 
     if (value.password) {

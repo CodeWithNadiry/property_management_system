@@ -36,7 +36,7 @@ const ModalManager = () => {
       content = <RoomLockForm data={modalData} />;
       break;
 
-    case 'reservations':
+    case "reservations":
       content = <ReservationForm data={modalData} />;
       break;
 

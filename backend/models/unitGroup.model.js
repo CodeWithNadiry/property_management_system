@@ -28,10 +28,10 @@ const UnitGroup = sequelize.define(
       defaultValue: DataTypes.NOW,
     },
   },
-  { tableName: "unit_groups", timestamps: false }
+  { tableName: "unit_groups", timestamps: false },
 );
 
 UnitGroup.belongsTo(Property, { foreignKey: "property_id" });
-Property.hasMany(UnitGroup, { foreignKey: "property_id", onDelete: 'CASCADE' });
+Property.hasMany(UnitGroup, { foreignKey: "property_id", onDelete: "CASCADE" });
 
 export default UnitGroup;

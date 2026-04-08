@@ -38,6 +38,6 @@ export const userService = {
   },
 
   async findAdminByProperty(property_id, role) {
-    return await User.findOne({where: {role: 'admin', property_id}})
-}
-}
+    return await User.findOne({ where: { role: "admin", property_id } });
+  },
+};

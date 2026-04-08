@@ -21,7 +21,7 @@ const Property = sequelize.define(
   {
     tableName: "properties",
     timestamps: false,
-  }
+  },
 );
 
 export default Property;

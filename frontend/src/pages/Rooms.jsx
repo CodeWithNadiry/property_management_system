@@ -38,12 +38,12 @@ const Rooms = ({ onDashboard }) => {
       return await deleteRoom(id);
     },
     onSuccess: (message) => {
-      alert(message)
+      alert(message);
       queryClient.invalidateQueries(["rooms", propertyId]);
     },
     onError(error) {
-      alert(error.response?.data?.message)
-    }
+      alert(error.response?.data?.message);
+    },
   });
 
   const handleDelete = (id) => {
@@ -54,7 +54,7 @@ const Rooms = ({ onDashboard }) => {
 
   // Table columns
   const columns = [
-    { header: 'Room ID', accessor: 'id'},
+    { header: "Room ID", accessor: "id" },
     { header: "Property ID", accessor: "property_id" },
     { header: "Room No.", accessor: "room_number" },
     { header: "Floor", accessor: "floor" },
@@ -62,18 +62,18 @@ const Rooms = ({ onDashboard }) => {
 
   // Table actions
   const actions = [
-          {
-            label: "Edit",
-            onClick: (row) => openModal("rooms", row),
-            className: "text-blue-600",
-          },
-          {
-            label: isPending ? "Deleting..." : "Delete",
-            onClick: (row) => handleDelete(row.id),
-            className: "text-red-600",
-            disabled: isPending,
-          },
-        ]
+    {
+      label: "Edit",
+      onClick: (row) => openModal("rooms", row),
+      className: "text-blue-600",
+    },
+    {
+      label: isPending ? "Deleting..." : "Delete",
+      onClick: (row) => handleDelete(row.id),
+      className: "text-red-600",
+      disabled: isPending,
+    },
+  ];
 
   return (
     <DataTable

@@ -46,7 +46,7 @@ const RoomLock = sequelize.define(
   {
     tableName: "room_lock_connection",
     timestamps: false,
-  }
+  },
 );
 
 RoomLock.belongsTo(Room, { foreignKey: "room_id" });

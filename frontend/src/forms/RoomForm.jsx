@@ -12,7 +12,9 @@ const RoomForm = ({ data }) => {
   const { closeModal } = useModalStore();
   const queryClient = useQueryClient();
   const { activeProperty } = usePropertyStore();
+
   const isEdit = !!data;
+
   const propertyId =
     role === "superadmin" ? activeProperty?.id : user?.property_id;
 

@@ -24,9 +24,10 @@ const links = [
 const AdminLayout = () => {
   const { role } = useAuthStore();
 
-  const filteredLinks = role === "admin" 
-    ? links.filter(link => link.label !== "Properties") 
-    : links;
+  const filteredLinks =
+    role === "admin"
+      ? links.filter((link) => link.label !== "Properties")
+      : links;
 
   return (
     <>

@@ -3,7 +3,9 @@ dotenv.config();
 
 import { Sequelize } from "sequelize";
 
-const db_url = process.env.DB_URL || 'postgresql://postgres.zefqjjawrlpksvoluiuf:nadiry_root@aws-1-ap-south-1.pooler.supabase.com:6543/postgres'
+const db_url =
+  process.env.DB_URL ||
+  "postgresql://postgres.zefqjjawrlpksvoluiuf:nadiry_root@aws-1-ap-south-1.pooler.supabase.com:6543/postgres";
 const sequelize = new Sequelize(db_url, {
   dialect: "postgres",
   logging: false,

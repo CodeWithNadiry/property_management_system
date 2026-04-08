@@ -7,7 +7,10 @@ import axios from "axios";
 import usePropertyStore from "../store/PropertyStore";
 import useAuthStore from "../store/AuthStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { createReservation, updateReservation } from "../api/reservations.service";
+import {
+  createReservation,
+  updateReservation,
+} from "../api/reservations.service";
 
 async function createReservationAction(
   prevState,
@@ -18,7 +21,6 @@ async function createReservationAction(
   queryClient,
   closeModal,
 ) {
-  
   console.log("previous state:", prevState);
   const data = Object.fromEntries(formData);
 
@@ -44,9 +46,9 @@ async function createReservationAction(
     console.log("property id:", propertyId);
 
     if (isEdit) {
-      await updateReservation(reservationId, payload, propertyId)
+      await updateReservation(reservationId, payload, propertyId);
     } else {
-      await createReservation(payload, propertyId)
+      await createReservation(payload, propertyId);
     }
 
     queryClient.invalidateQueries(["reservations"]);

@@ -4,7 +4,7 @@ export async function create(req, res, next) {
   try {
     const lock = await lockService.createLock(req.body);
 
-    res.status(201).json({lock});
+    res.status(201).json({ lock });
   } catch (err) {
     next(err);
   }

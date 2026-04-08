@@ -119,8 +119,8 @@ function ReservationDetail() {
       queryClient.invalidateQueries({ queryKey: ["reservations", id] });
     },
     onError(error) {
-      alert(`Error: ${error?.response?.data?.message || error.message}`)
-    }
+      alert(`Error: ${error?.response?.data?.message || error.message}`);
+    },
   });
 
   const { mutate: checkInMutate, isLoading: isCheckingIn } = useMutation({
@@ -214,7 +214,6 @@ function ReservationDetail() {
               {isCheckingIn ? "Checking in..." : "Check In"}
             </button>
           )}
-
 
           {/* {r.status === "pending" && (
             <button

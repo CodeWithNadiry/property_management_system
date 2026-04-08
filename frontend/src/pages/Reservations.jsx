@@ -8,9 +8,9 @@ import DataTable from "../components/DataTable";
 import { formattedDate } from "../utils/formattedDate";
 import { getAllReservations } from "../api/reservations.service";
 
-async function fetchReservations( propertyId) {
+async function fetchReservations(propertyId) {
   if (!propertyId) return [];
-  return await getAllReservations(propertyId)
+  return await getAllReservations(propertyId);
 }
 
 const Reservations = () => {
@@ -36,8 +36,8 @@ const Reservations = () => {
   const columns = [
     { header: "Reservation ID", accessor: "id" },
     { header: "Name", accessor: "name" },
-    {header: 'Check in', accessor: 'check_in'},
-    {header: 'Check Out', accessor: 'check_out'},
+    { header: "Check in", accessor: "check_in" },
+    { header: "Check Out", accessor: "check_out" },
     { header: "Status", accessor: "status" },
     { header: "Amount", accessor: "total_price" },
   ];
@@ -65,21 +65,20 @@ const Reservations = () => {
       isLoading={isLoading}
       isError={isError}
       onAdd={() => openModal("reservations")}
-      />
-    );
-  };
-  
-  export default Reservations;
-  
-  // resulting array: 
-  // with this ::: data={reservations.map((r) => ({
-  //       ...r,
-  //       status: r.status.replace("_", " "),
-  //       total_price: formattedPrice.format(r.total_price),
-  //     }))}
+    />
+  );
+};
 
-  
-  // [
-  // { id: 1, name: "John Doe", status: "checked in", total_price: "$1,000.00" },
-  // { id: 2, name: "Jane Smith", status: "pending payment", total_price: "$500.00" }
-  // ]
+export default Reservations;
+
+// resulting array:
+// with this ::: data={reservations.map((r) => ({
+//       ...r,
+//       status: r.status.replace("_", " "),
+//       total_price: formattedPrice.format(r.total_price),
+//     }))}
+
+// [
+// { id: 1, name: "John Doe", status: "checked in", total_price: "$1,000.00" },
+// { id: 2, name: "Jane Smith", status: "pending payment", total_price: "$500.00" }
+// ]

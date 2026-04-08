@@ -7,12 +7,12 @@ import { useList } from "../hooks/useList";
 import { deleteLock as deleteLockApi, getAllLocks } from "../api/locks.service";
 
 async function fetchLocks(propertyId) {
-  const data = await getAllLocks(propertyId)
-  return data.locks
+  const data = await getAllLocks(propertyId);
+  return data.locks;
 }
 
 async function deleteLock(id) {
-  const data = await deleteLockApi(id)
+  const data = await deleteLockApi(id);
   return data.message;
 }
 
@@ -23,14 +23,24 @@ const Locks = ({ onDashboard }) => {
   const user = useAuthStore((state) => state.user);
   const openModal = useModalStore(({ openModal }) => openModal);
 
-
   const propertyId =
-    role === "superadmin"
-      ? activeProperty?.id
-      : user?.property_id;
+    role === "superadmin" ? activeProperty?.id : user?.property_id;
 
-  const {data: locks = [], isLoading, isError} = useList({key: 'locks', propertyId, fn: () => fetchLocks(propertyId), token})
-   const {mutate, isPending} = useAction({key: 'locks', fn: deleteLock, propertyId})
+  const {
+    data: locks = [],
+    isLoading,
+    isError,
+  } = useList({
+    key: "locks",
+    propertyId,
+    fn: () => fetchLocks(propertyId),
+    token,
+  });
+  const { mutate, isPending } = useAction({
+    key: "locks",
+    fn: deleteLock,
+    propertyId,
+  });
 
   function handleDeleteLock(id) {
     if (window.confirm("Are you sure you want to delete the lock?")) {
@@ -44,19 +54,19 @@ const Locks = ({ onDashboard }) => {
     { header: "Serial No.", accessor: "serial_number" },
   ];
 
-  const actions =[
-          {
-            label: "Edit",
-            onClick: (row) => openModal("locks", row),
-            className: "text-blue-600",
-          },
-          {
-            label: "Delete",
-            onClick: (row) => handleDeleteLock(row.id),
-            disabled: isPending,
-            className: "text-red-600",
-          },
-        ]
+  const actions = [
+    {
+      label: "Edit",
+      onClick: (row) => openModal("locks", row),
+      className: "text-blue-600",
+    },
+    {
+      label: "Delete",
+      onClick: (row) => handleDeleteLock(row.id),
+      disabled: isPending,
+      className: "text-red-600",
+    },
+  ];
 
   return (
     <DataTable
@@ -66,11 +76,7 @@ const Locks = ({ onDashboard }) => {
       actions={actions}
       isLoading={isLoading}
       isError={isError}
-      onAdd={
-        !onDashboard
-          ? () => openModal("locks")
-          : undefined
-      }
+      onAdd={!onDashboard ? () => openModal("locks") : undefined}
     />
   );
 };

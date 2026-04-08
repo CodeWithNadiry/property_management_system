@@ -1,4 +1,4 @@
-export const formattedPrice = new Intl.NumberFormat('en-PK', {
-  style: 'currency',
-  currency: 'PKR',
+export const formattedPrice = new Intl.NumberFormat("en-PK", {
+  style: "currency",
+  currency: "PKR",
 });

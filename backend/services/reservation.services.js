@@ -6,7 +6,10 @@ import Passcode from "../models/passcode.model.js";
 import ConfirmationForm from "../models/confirmationForm.model.js";
 import { generateCode } from "../utils/generateCode.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { confirmReservationEmail, passcodeEmail } from "../utils/emailTemplate.js";
+import {
+  confirmReservationEmail,
+  passcodeEmail,
+} from "../utils/emailTemplate.js";
 import { AppError } from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
 
@@ -103,19 +106,20 @@ export const reservationService = {
 
     await Room.update(
       { status: "available" },
-      { where: { id: reservation.room_id } }
+      { where: { id: reservation.room_id } },
     );
 
     await Passcode.update(
       { status: "expired" },
-      { where: { reservation_id: id } }
+      { where: { reservation_id: id } },
     );
 
     return { reservation };
   },
 
   async guestConfirm(data, id) {
-    const reservation = await Reservation.findByPk(id, { // get the reservation by its id and also include the related ConfirmationForm(but only the id and status fields.)
+    const reservation = await Reservation.findByPk(id, {
+      // get the reservation by its id and also include the related ConfirmationForm(but only the id and status fields.)
       include: [ConfirmationForm],
     });
 
@@ -134,7 +138,7 @@ export const reservationService = {
 
     await Room.update(
       { status: "reserved" },
-      { where: { id: reservation.room_id } }
+      { where: { id: reservation.room_id } },
     );
 
     return confirmationForm;
@@ -143,14 +147,13 @@ export const reservationService = {
   async guestCheckIn(token) {
     if (!token) throw new AppError("Token is required", 400);
 
-    const decoded = jwt.verify(token, 'super');
+    const decoded = jwt.verify(token, "super");
 
     const reservation = await Reservation.findByPk(decoded.reservation_id, {
       include: [ConfirmationForm],
     });
 
-    if (!reservation)
-      throw new AppError("Reservation not available", 404);
+    if (!reservation) throw new AppError("Reservation not available", 404);
 
     const passcode = await Passcode.findOne({
       where: { reservation_id: reservation.id },
@@ -215,12 +218,12 @@ export const reservationService = {
 
     await Room.update(
       { status: "available" },
-      { where: { id: reservation.room_id } }
+      { where: { id: reservation.room_id } },
     );
 
     await Passcode.update(
       { status: "expired" },
-      { where: { reservation_id: id } }
+      { where: { reservation_id: id } },
     );
 
     return reservation;
@@ -238,16 +241,15 @@ export const reservationService = {
 
     await Passcode.update(
       { status: "expired" },
-      { where: { reservation_id: id } }
+      { where: { reservation_id: id } },
     );
 
     return reservation;
   },
 
-
   async findReservationById(id) {
-    const reservation = await Reservation.findByPk(id)
-    if (!reservation) throw new AppError('Reservatoin not found', 404)
+    const reservation = await Reservation.findByPk(id);
+    if (!reservation) throw new AppError("Reservatoin not found", 404);
     return reservation;
-  }
+  },
 };

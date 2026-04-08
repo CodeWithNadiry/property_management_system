@@ -15,13 +15,13 @@ export const getDashboardStats = async (req, res, next) => {
 
     const totalUsers = await User.count({ where: filter });
 
-    const totalConnections = await RoomLock.count({where: filter})
-    
+    const totalConnections = await RoomLock.count({ where: filter });
+
     res.status(200).json({
       totalRooms,
       totalLocks,
       totalUsers,
-      totalConnections
+      totalConnections,
     });
   } catch (err) {
     err.statusCode ||= 500;

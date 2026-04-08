@@ -1,6 +1,6 @@
 export function paramsObj(propertyId) {
   return {
-    params: { property_id:  propertyId},
+    params: { property_id: propertyId },
   };
 }
 

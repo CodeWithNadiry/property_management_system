@@ -37,7 +37,7 @@ const Connections = () => {
     onSuccess: (message) => {
       queryClient.invalidateQueries(["roomLocks", propertyId]);
       setTimeout(() => {
-        alert(message)
+        alert(message);
       }, 300);
     },
   });

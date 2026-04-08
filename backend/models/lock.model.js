@@ -31,7 +31,7 @@ const Lock = sequelize.define(
   {
     tableName: "locks",
     timestamps: false,
-  }
+  },
 );
 
 // Associations

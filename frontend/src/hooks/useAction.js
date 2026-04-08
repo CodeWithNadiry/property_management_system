@@ -11,7 +11,7 @@ export const useAction = ({ fn, key, propertyId }) => {
       }
     },
     onError(err) {
-      alert(err.response?.data?.message)
-    }
+      alert(err.response?.data?.message);
+    },
   });
 };

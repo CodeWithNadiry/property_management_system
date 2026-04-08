@@ -17,7 +17,8 @@ const fetchProperties = async (token) => {
 const BaseLayout = ({ links }) => {
   const navigate = useNavigate();
   const { user, role, token, logout } = useAuthStore();
-  const { activeProperty, setActiveProperty, clearProperty } = usePropertyStore();
+  const { activeProperty, setActiveProperty, clearProperty } =
+    usePropertyStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   function handleLogout() {
@@ -41,7 +42,9 @@ const BaseLayout = ({ links }) => {
     if (!properties.length) return;
 
     if (role === "staff" || role === "admin") {
-      const assignedProperty = properties.find((p) => p.id === user?.property_id);
+      const assignedProperty = properties.find(
+        (p) => p.id === user?.property_id,
+      );
       if (assignedProperty) {
         setActiveProperty(assignedProperty);
       }
@@ -91,7 +94,12 @@ const BaseLayout = ({ links }) => {
                   }`
                 }
               >
-                {Icon && <Icon size={18} className="transition-transform group-hover:scale-110" />}
+                {Icon && (
+                  <Icon
+                    size={18}
+                    className="transition-transform group-hover:scale-110"
+                  />
+                )}
                 <span>{link.label}</span>
               </NavLink>
             );
@@ -126,7 +134,9 @@ const BaseLayout = ({ links }) => {
                   <span>Error loading properties</span>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium hidden md:inline">Select Property:</span>
+                    <span className="text-sm font-medium hidden md:inline">
+                      Select Property:
+                    </span>
                     <select
                       value={activeProperty?.id || ""}
                       onChange={handleChangeProperty}
@@ -143,7 +153,9 @@ const BaseLayout = ({ links }) => {
               </>
             ) : (
               // Admin / Staff: show only property name
-              <p className="text-lg font-semibold md:text-2xl">🏢 {activeProperty?.name}</p>
+              <p className="text-lg font-semibold md:text-2xl">
+                🏢 {activeProperty?.name}
+              </p>
             )}
           </div>
 

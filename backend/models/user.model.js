@@ -14,7 +14,10 @@ const User = sequelize.define(
     name: { type: DataTypes.STRING(100), allowNull: false },
     email: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     password: { type: DataTypes.TEXT, allowNull: false },
-    role: { type: DataTypes.ENUM("superadmin", "admin", "staff"), allowNull: false },
+    role: {
+      type: DataTypes.ENUM("superadmin", "admin", "staff"),
+      allowNull: false,
+    },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
   },
   {
@@ -22,7 +25,7 @@ const User = sequelize.define(
     timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at",
-  }
+  },
 );
 
 User.belongsTo(Property, { foreignKey: "property_id" });

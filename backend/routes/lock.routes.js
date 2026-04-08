@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { create, getAll, remove, update } from "../controllers/lock.controller.js";
+import {
+  create,
+  getAll,
+  remove,
+  update,
+} from "../controllers/lock.controller.js";
 import { isAuth } from "../middleware/isAuth.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import { createLockSchema } from "../schemas/lock.schema.js";

@@ -27,9 +27,9 @@ const AppRoutes = () => {
         <Route path="/auth" element={<Auth />} />
 
         <Route path="/confirmations/:id" element={<ConfirmationForm />} />
-        <Route path='/confirmation-success' element={<ConfirmationSuccess />} />
+        <Route path="/confirmation-success" element={<ConfirmationSuccess />} />
 
-        <Route path='/check_in' element={<CheckIn />} />
+        <Route path="/check_in" element={<CheckIn />} />
 
         <Route element={<ProtectedRoutes role="staff" />}>
           <Route element={<StaffLayout />}>

@@ -7,13 +7,13 @@ import { createProperty, updateProperty } from "../api/property.service";
 const PropertyForm = ({ data }) => {
   const [name, setName] = useState("");
   const [error, setError] = useState(null);
-  const {closeModal} = useModalStore();
+  const { closeModal } = useModalStore();
   const isEdit = !!data;
 
   useEffect(() => {
     if (data) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(data.name || ""); 
+      setName(data.name || "");
     }
   }, [data]);
 
@@ -34,9 +34,9 @@ const PropertyForm = ({ data }) => {
       const payload = { name };
 
       if (isEdit) {
-        await updateProperty(data.id, payload)
+        await updateProperty(data.id, payload);
       } else {
-        await createProperty(payload)
+        await createProperty(payload);
       }
 
       window.location.reload(); // reload to see updated list
@@ -45,7 +45,6 @@ const PropertyForm = ({ data }) => {
     }
   };
 
-  
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <h2 className="text-xl font-semibold text-center">
