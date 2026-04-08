@@ -19,11 +19,10 @@ async function fetchConfirmationData(id, token) {
     `http://localhost:5000/reservations/${id}/confirm_form`,
     {
       headers: { Authorization: `Bearer ${token}` },
-      params: { id },
     },
   );
 
-  return res.data.reservation;
+  return res.data;
 }
 
 const ConfirmationForm = () => {
@@ -70,7 +69,6 @@ const ConfirmationForm = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log("User inputs", userInputs);
 
     const { name, email, phone, city, country, guestNumber } = userInputs;
 

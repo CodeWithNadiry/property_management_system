@@ -15,6 +15,7 @@ import reservationRoutes from './routes/reservation.routes.js'
 import { createSuperAdmin } from "./middleware/createSuperAdmin.js";
 import { connectDB } from "./config/connectDB.js";
 import { startCronJobs } from "./cron/cron.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -41,13 +42,7 @@ app.use("/room-lock", roomLockRoutes);
 app.use('/reservations', reservationRoutes)
 
 // Global error handler
-app.use((error, req, res, next) => {
-  const status = error.statusCode || 500;
-  const message = error.message || "Something went wrong";
-  const data = error.data || null;
-
-  res.status(status).json({ message, data });
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

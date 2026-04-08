@@ -1,24 +1,23 @@
 import { Router } from "express";
 import {
-  createUser,
-  deleteUser,
-  getUsers,
-  updateUser,
+  create,
+  getAll,
+  remove,
+  update,
 } from "../controllers/user.controller.js";
 import { isAuth } from "../middleware/isAuth.js";
 import { isAdmin } from "../middleware/isAdmin.js";
-import { isSuperAdmin } from "../middleware/isSuperAdmin.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import { createUserSchema } from "../schemas/user.schema.js";
 
 const router = Router();
 
-router.post("/", validateRequest(createUserSchema), isAuth, isAdmin, createUser);
+router.post("/", validateRequest(createUserSchema), isAuth, isAdmin, create);
 
-router.get("/", isAuth, isAdmin, getUsers);
+router.get("/", isAuth, isAdmin, getAll);
 
-router.patch("/:id", isAuth, isAdmin, updateUser);
+router.patch("/:id", isAuth, isAdmin, update);
 
-router.delete("/:id", isAuth, isAdmin, deleteUser);
+router.delete("/:id", isAuth, isAdmin, remove);
 
 export default router;

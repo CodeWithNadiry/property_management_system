@@ -2,8 +2,8 @@ import { Op } from "sequelize";
 import Reservation from "../models/reservation.model.js";
 import { checkInEmail, checkOutEmail } from "../utils/emailTemplate.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { guestCheckOutService } from "../services/reservation.services.js";
 import jwt from 'jsonwebtoken'
+import { reservationService } from "../services/reservation.services.js";
 // By default, Sequelize assumes equality (e.g., id: 5 becomes WHERE id = 5). The Op object allows you to use other SQL comparisons and logical conditions:
 console.log('running')
 export const sendCheckInReminderEmails = async () => {
@@ -37,7 +37,6 @@ export const sendCheckInReminderEmails = async () => {
     console.log("Reservations found:", reservations.length);
 
     await Promise.all(reservations.map(async (reservation) => {
-      console.log('reservation id:', reservation.id)
 
       const token = jwt.sign({
         email: reservation.email,
@@ -46,7 +45,6 @@ export const sendCheckInReminderEmails = async () => {
         check_out: reservation.check_out,
       }, 'super', {expiresIn: '1hr'})
 
-      console.log('check in email token', token)
       try {
         await sendEmail({
           to: reservation.email,
@@ -98,7 +96,7 @@ export const sendCheckOutReminderEmails = async () => {
     await Promise.all(
       reservations.map(async (reservation) => {
         try {
-          await guestCheckOutService(reservation.id);
+          await reservationService.guestCheckOut(reservation.id);
 
           await sendEmail({
             to: reservation.email,

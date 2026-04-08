@@ -1,41 +1,56 @@
 import Lock from "../models/lock.model.js";
 import Property from "../models/property.model.js";
+import { AppError, NotFoundError } from "../utils/AppError.js";
 
-export const createLockService = async (data) => {
-  const { property_id } = data;
+export const lockService = {
+  async createLock(data) {
+    const { property_id, serial_number } = data;
 
-  const property = await Property.findByPk(property_id);
-  if (!property) {
-    throw new Error("Selected property does not exist");
-  }
+    const exists = await Lock.findOne({ where: { serial_number } });
+    if (exists) throw new AppError("Serial already exists", 422);
 
-  const lock = await Lock.create(data);
-  return lock;
-};
+    const property = await Property.findByPk(property_id);
+    if (!property) {
+      throw new NotFoundError("Selected property does not exist");
+    }
 
-export const findLockBySerial = (serial_number) =>
-  Lock.findOne({ where: { serial_number } });
+    const lock = await Lock.create(data);
+    return lock;
+  },
 
-export const getLocksService = (filter = {}) =>
-  Lock.findAll({ where: filter, order: [["created_at", "DESC"]] });
+  async getLocks(filter = {}) {
+    return await Lock.findAll({
+      where: filter,
+      order: [["created_at", "DESC"]],
+    });
+  },
 
-export const updateLockService = async (id, data) => {
-  const lock = await Lock.findByPk(id);
-  if (!lock) return null;
+  async getLock(id) {
+    const lock = await Lock.findByPk(id);
+    if (!lock) throw new NotFoundError("Lock not found");
+    return lock;
+  },
 
-  // Optional: validate property_id on update
-  if (data.property_id) {
-    const property = await Property.findByPk(data.property_id);
-    if (!property) throw new Error("Selected property does not exist");
-  }
+  async updateLock(id, data) {
+    const lock = await Lock.findByPk(id);
+    if (!lock) throw new NotFoundError("Lock not found");
 
-  await lock.update(data);
-  return lock;
-};
+    if (data.property_id) {
+      const property = await Property.findByPk(data.property_id);
+      if (!property) {
+        throw new NotFoundError("Selected property does not exist");
+      }
+    }
 
-export const deleteLockService = async (id) => {
-  const lock = await Lock.findByPk(id);
-  if (!lock) return null;
-  await lock.destroy();
-  return lock;
+    await lock.update(data);
+    return lock;
+  },
+
+  async deleteLock(id) {
+    const lock = await Lock.findByPk(id);
+    if (!lock) throw new NotFoundError("Lock not found");
+
+    await lock.destroy();
+    return lock;
+  },
 };

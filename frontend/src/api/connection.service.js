@@ -11,8 +11,8 @@ export const editConnection = async (id, data, propertyId) => {
   return res.data.connection
 }
 
-export const deleteConnection = async (data) => {
-  const res = await apiClient.delete('/room-lock/unassign', data)
+export const deleteConnection = async (id) => {
+  const res = await apiClient.delete('/room-lock/unassign/'+id,)
   return res.data.message;
 }
 
