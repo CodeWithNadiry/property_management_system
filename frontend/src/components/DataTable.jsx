@@ -53,7 +53,7 @@ const DataTable = ({
                 <tr key={row.id} className="border-b border-zinc-200 hover:bg-gray-100">
                   {columns.map((col) => (
                     <td key={col.accessor} className="py-3">
-                      {row[col.accessor]}
+                      {row[col.accessor] ? row[col.accessor]: 'Null'}
                     </td>
                   ))}
 

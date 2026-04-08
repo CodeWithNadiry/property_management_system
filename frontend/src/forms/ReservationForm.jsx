@@ -7,6 +7,7 @@ import axios from "axios";
 import usePropertyStore from "../store/PropertyStore";
 import useAuthStore from "../store/AuthStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { createReservation, updateReservation } from "../api/reservations.service";
 
 async function createReservationAction(
   prevState,
@@ -16,7 +17,6 @@ async function createReservationAction(
   reservationId,
   queryClient,
   closeModal,
-  token,
 ) {
   
   console.log("previous state:", prevState);
@@ -44,19 +44,9 @@ async function createReservationAction(
     console.log("property id:", propertyId);
 
     if (isEdit) {
-      await axios.patch(
-        `http://localhost:5000/reservations/${reservationId}`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { property_id: propertyId },
-        },
-      );
+      await updateReservation(reservationId, payload, propertyId)
     } else {
-      await axios.post(`http://localhost:5000/reservations`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { property_id: propertyId },
-      });
+      await createReservation(payload, propertyId)
     }
 
     queryClient.invalidateQueries(["reservations"]);
@@ -75,7 +65,7 @@ async function createReservationAction(
 const ReservationForm = ({ data }) => {
   const { closeModal } = useModalStore();
   const { activeProperty } = usePropertyStore();
-  const { user, role, token } = useAuthStore();
+  const { user, role } = useAuthStore();
   const queryClient = useQueryClient();
 
   const propertyId =
@@ -97,7 +87,6 @@ const ReservationForm = ({ data }) => {
         data?.id,
         queryClient,
         closeModal,
-        token,
       ),
     {
       errors: null,

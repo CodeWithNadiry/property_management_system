@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import DataTable from "../components/DataTable";
 import useModalStore from "../store/ModalStore";
 import usePropertyStore from "../store/PropertyStore";
 import useAuthStore from "../store/AuthStore";
+import { deleteUser, getAllUsers } from "../api/users.service";
 
 const Users = ({ onDashboard }) => {
   const { openModal } = useModalStore();
@@ -20,11 +20,7 @@ const Users = ({ onDashboard }) => {
 
   const fetchUsers = async () => {
     if (!token || !propertyId) return [];
-    const res = await axios.get("http://localhost:5000/users", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { property_id: propertyId },
-    });
-    return res.data.users;
+    return await getAllUsers(propertyId);
   };
 
   const {
@@ -39,13 +35,16 @@ const Users = ({ onDashboard }) => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId) => {
-      await axios.delete(`http://localhost:5000/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await deleteUser(userId)
     },
-    onSuccess: () => queryClient.invalidateQueries(["users", propertyId]),
+    onSuccess: (message) => {
+      queryClient.invalidateQueries(["users", propertyId])
+      if (message) {
+        alert(message)
+      }
+    },
     onError: (err) => {
-      console.log(err);
+      console.log(err.response?.data?.message);
     },
   });
 

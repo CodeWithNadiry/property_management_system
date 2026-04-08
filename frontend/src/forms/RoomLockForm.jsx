@@ -1,71 +1,80 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { useQueryClient } from "@tanstack/react-query";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useState } from "react";
+import usePropertyStore from "../store/PropertyStore";
 import useAuthStore from "../store/AuthStore";
 import useModalStore from "../store/ModalStore";
-import Input from "../components/Input";
 import Button from "../components/Button";
+import {
+  createConnection,
+  editConnection,
+  getUnAssignedLocks,
+  getUnAssignedRooms,
+} from "../api/connection.service";
 
+async function fetchUnAssignedLocks(propertyId) {
+  return await getUnAssignedLocks(propertyId);
+}
+
+async function fetchUnAssignedRooms(propertyId) {
+  return await getUnAssignedRooms(propertyId);
+}
 const RoomLockForm = ({ data }) => {
-  const { token } = useAuthStore();
-  const { closeModal } = useModalStore();
-  const queryClient = useQueryClient();
-
   const isEdit = !!data;
+  const queryClient = useQueryClient();
+  const { closeModal } = useModalStore();
+  const { activeProperty } = usePropertyStore();
+  const { role, user } = useAuthStore();
+  const [selectedLockId, setSelectedLockId] = useState("");
+  const [selectedRoomId, setSelectedRoomId] = useState("");
+  const [error, setError] = useState(null);
+  const propertyId =
+    role === "superadmin" ? activeProperty?.id : user?.property_id;
 
-  const [userInputs, setUserInputs] = useState({
-    roomId: "",
-    lockId: "",
-    propertyId: "", // added property_id
+  const { data: unAssignedLocks } = useQuery({
+    queryKey: ["unAssignedLocks", propertyId],
+    queryFn: () => fetchUnAssignedLocks(propertyId),
+    enabled: !!propertyId,
   });
 
-  const [error, setError] = useState(null);
-
+  const { data: unAssignedRooms } = useQuery({
+    queryKey: ["unAssignedRooms", propertyId],
+    queryFn: () => fetchUnAssignedRooms(propertyId),
+    enabled: !!propertyId,
+  });
   useEffect(() => {
     if (data) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUserInputs({
-        roomId: data.room_id ?? "",
-        lockId: data.lock_id ?? "",
-        propertyId: data.property_id ?? "", // load property_id
-      });
+      setSelectedLockId(data.lock_id ?? "");
+      setSelectedRoomId(data.room_id ?? "");
     }
   }, [data]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserInputs((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
 
-    if (!userInputs.roomId || !userInputs.lockId || !userInputs.propertyId) {
-      setError("Room, Lock, and Property are required.");
-      return;
+    if (!selectedLockId || !selectedRoomId) {
+      setError("Lock id and Room id is required.");
     }
 
     try {
       const payload = {
-        room_id: Number(userInputs.roomId),
-        lock_id: Number(userInputs.lockId),
-        property_id: Number(userInputs.propertyId),
+        lock_id: Number(selectedLockId),
+        room_id: Number(selectedRoomId),
       };
 
-      await axios.post(
-        "http://localhost:5000/room-lock/assign",
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      if (isEdit) {
+        await editConnection(data.id, payload, propertyId)
+      } else {
+        await createConnection(payload, propertyId)
+      }
 
-      queryClient.invalidateQueries(["roomLocks"]);
+      queryClient.invalidateQueries(["locks", "rooms"]);
       closeModal();
-    } catch (err) {
-      setError(err.response?.data?.message || "Error assigning lock");
+    } catch (error) {
+      setError(error.response?.data?.message);
     }
-  };
-
+  }
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <h2 className="text-xl font-bold text-center">
@@ -74,35 +83,47 @@ const RoomLockForm = ({ data }) => {
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-      <Input
-        label="Room ID"
-        type="number"
-        name="roomId"
-        value={userInputs.roomId}
-        onChange={handleChange}
-        placeholder="Enter room ID"
-        required
-      />
+      {unAssignedLocks?.length > 0 ? (
+        <>
+          <label htmlFor="">Lock ID:</label>
+          <select
+            value={selectedLockId}
+            onChange={(e) => setSelectedLockId(e.target.value)}
+            className="w-100 p-2 cursor-pointer border"
+          >
+            <option value="" className="cursor-pointer">
+              Select a lock
+            </option>
+            {unAssignedLocks.map((lock) => (
+              <option
+                key={lock.id}
+                value={lock.id}
+              >{`Lock Id: ${lock.id} | Serial no. ${lock.serial_number}`}</option>
+            ))}
+          </select>
+        </>
+      ): <p>No locks available</p>}
 
-      <Input
-        label="Lock ID"
-        type="number"
-        name="lockId"
-        value={userInputs.lockId}
-        onChange={handleChange}
-        placeholder="Enter lock ID"
-        required
-      />
-
-      <Input
-        label="Property ID"
-        type="number"
-        name="propertyId"
-        value={userInputs.propertyId}
-        onChange={handleChange}
-        placeholder="Enter property ID"
-        required
-      />
+      {unAssignedRooms?.length > 0 ? (
+        <>
+          <label>Room ID:</label>
+          <select
+            value={selectedRoomId}
+            onChange={(e) => setSelectedRoomId(e.target.value)}
+            className="w-100 p-2 cursor-pointer border"
+          >
+            <option value="">Select a room</option>
+            {unAssignedRooms.map((room) => (
+              <option
+                key={room.id}
+                value={room.id}
+              >{`Room Id: ${room.id} || Room no. ${room.room_number}`}</option>
+            ))}
+          </select>
+        </>
+      ): <p>No rooms available</p>}
+      <input type="hidden" name="lockId" value={selectedLockId} />
+      <input type="hidden" name="roomId" value={selectedRoomId} />
 
       <div className="flex gap-4 mt-5">
         <Button type="submit">{isEdit ? "Update" : "Assign"}</Button>

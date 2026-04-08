@@ -1,14 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import useModalStore from "../store/ModalStore";
 import useAuthStore from "../store/AuthStore";
 import DataTable from "../components/DataTable";
+import { deleteProperty, getAllProperties } from "../api/property.service";
 
-async function fetchProperties(token) {
-  const response = await axios.get("http://localhost:5000/properties", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data.properties;
+async function fetchProperties() {
+  return await getAllProperties();
 }
 
 const Properties = () => {
@@ -18,19 +15,21 @@ const Properties = () => {
 
   const { data: properties = [], isLoading, isError } = useQuery({
     queryKey: ["properties"],
-    queryFn: () => fetchProperties(token),
+    queryFn: () => fetchProperties(),
     enabled: !!token,
   });
 
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId) => {
-      await axios.delete(`http://localhost:5000/properties/${propertyId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await deleteProperty(propertyId)
     },
-    onSuccess: () => {
+    onSuccess: (message) => {
+      alert(message)
       queryClient.invalidateQueries(["properties"]);
     },
+    onError(error) {
+      alert('Error: '+error.response?.data?.message)
+    }
   });
 
   const handleDeleteProperty = (propertyId) => {
