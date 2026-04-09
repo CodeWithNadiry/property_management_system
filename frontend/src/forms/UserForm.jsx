@@ -19,7 +19,7 @@ async function userAction(
   isEdit,
   userId,
   closeModal,
-  propertyId
+  propertyId,
 ) {
   const data = Object.fromEntries(formData);
 
@@ -46,9 +46,9 @@ async function userAction(
     }
 
     if (isEdit) {
-      await updateUser(userId, payload, propertyId)
+      await updateUser(userId, payload, propertyId);
     } else {
-      await createUser(payload, propertyId)
+      await createUser(payload, propertyId);
     }
 
     closeModal();
@@ -63,10 +63,11 @@ async function userAction(
 }
 
 const UserForm = ({ data }) => {
-  const {  role, user } = useAuthStore();
+  const { role, user } = useAuthStore();
   const { activeProperty } = usePropertyStore();
   const { closeModal } = useModalStore();
-  const propertyId = role === 'superadmin' ? activeProperty?.id : user?.property_id;
+  const propertyId =
+    role === "superadmin" ? activeProperty?.id : user?.property_id;
 
   const isEdit = !!data;
 
@@ -154,7 +155,6 @@ const UserForm = ({ data }) => {
           <option value="staff">Staff</option>
           <option value="admin">Admin</option>
         </select>
-
 
         <div className="flex items-center justify-between">
           <span>Active User</span>

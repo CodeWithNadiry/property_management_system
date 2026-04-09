@@ -17,8 +17,8 @@ const CheckIn = () => {
           "http://localhost:5000/reservations/check_in",
           { token: urlToken },
           {
-            headers: { Authorization: `Bearer ${token}` }
-          }
+            headers: { Authorization: `Bearer ${token}` },
+          },
         );
 
         setData(res.data);
@@ -42,15 +42,11 @@ const CheckIn = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold">
-        {data?.message}
-      </h1>
+      <h1 className="text-xl font-semibold">{data?.message}</h1>
 
       <p className="mt-4 text-lg">
         Your Room Access Code:{" "}
-        <span className="text-green-500 font-bold">
-          {data?.passcode}
-        </span>
+        <span className="text-green-500 font-bold">{data?.passcode}</span>
       </p>
       <p>Check your inbox for further information</p>
     </div>

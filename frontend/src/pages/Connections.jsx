@@ -5,7 +5,6 @@ import useModalStore from "../store/ModalStore";
 import usePropertyStore from "../store/PropertyStore";
 import { deleteConnection, getAllConnections } from "../api/connection.service";
 const Connections = () => {
-  console.log('connections.jsx is running')
   const { token, role, user } = useAuthStore();
   const { openModal } = useModalStore();
   const queryClient = useQueryClient();
@@ -17,7 +16,7 @@ const Connections = () => {
   // Fetch room-lock connections
   const fetchConnections = async () => {
     if (!token || !propertyId) return [];
-    return await getAllConnections(propertyId)
+    return await getAllConnections(propertyId);
   };
 
   const {
@@ -32,10 +31,15 @@ const Connections = () => {
 
   // Mutation to unassign a lock
   const unassignMutation = useMutation({
-    mutationFn: async (lockId) => {
-     return await deleteConnection(lockId)
+    mutationFn: async (id) => {
+      return await deleteConnection(id);
     },
-    onSuccess: () => queryClient.invalidateQueries(["roomLocks", propertyId]),
+    onSuccess: (message) => {
+      queryClient.invalidateQueries(["roomLocks", propertyId]);
+      setTimeout(() => {
+        alert(message);
+      }, 300);
+    },
   });
 
   const handleUnassign = (lockId) => {
@@ -44,14 +48,12 @@ const Connections = () => {
     }
   };
 
-  // Columns for DataTable
   const columns = [
     { header: "Room ID", accessor: "room_id" },
     { header: "Lock ID", accessor: "lock_id" },
     { header: "Property ID", accessor: "property_id" },
   ];
 
-  // Actions for DataTable
   const actions = [
     {
       label: "Edit",
@@ -60,7 +62,7 @@ const Connections = () => {
     },
     {
       label: "Unassign",
-      onClick: (row) => handleUnassign(row.lock_id),
+      onClick: (row) => handleUnassign(row.id),
       disabled: unassignMutation.isPending,
       className: "text-red-600",
     },

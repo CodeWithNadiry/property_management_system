@@ -27,7 +27,11 @@ const Reservation = sequelize.define(
     check_in: { type: DataTypes.DATE, allowNull: false },
     check_out: { type: DataTypes.DATE, allowNull: false },
 
-    total_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0 },
+    total_price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
 
     status: {
       type: DataTypes.ENUM(
@@ -36,7 +40,7 @@ const Reservation = sequelize.define(
         "checked_in",
         "checked_out",
         "cancelled",
-        "noshow"
+        "noshow",
       ),
       defaultValue: "pending",
     },
@@ -46,7 +50,7 @@ const Reservation = sequelize.define(
       defaultValue: DataTypes.NOW,
     },
   },
-  { tableName: "reservations", timestamps: false }
+  { tableName: "reservations", timestamps: false },
 );
 
 // Relations
@@ -54,6 +58,5 @@ Reservation.belongsTo(Room, { foreignKey: "room_id" });
 Room.hasMany(Reservation, { foreignKey: "room_id" });
 
 Reservation.belongsTo(Property, { foreignKey: "property_id" });
-
 
 export default Reservation;

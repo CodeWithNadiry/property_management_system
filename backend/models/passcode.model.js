@@ -8,24 +8,24 @@ const Passcode = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 
-    reservation_id: { 
-      type: DataTypes.INTEGER, 
+    reservation_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-      references: { model: Reservation, key: "id" } 
+      references: { model: Reservation, key: "id" },
     },
 
-    room_id: { 
-      type: DataTypes.INTEGER, 
+    room_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Room, key: "id" } 
+      references: { model: Room, key: "id" },
     },
 
     code: { type: DataTypes.STRING(6), allowNull: false },
 
-    status: { 
-      type: DataTypes.ENUM("active", "expired"), 
-      defaultValue: "active" 
+    status: {
+      type: DataTypes.ENUM("active", "expired"),
+      defaultValue: "active",
     },
 
     valid_from: { type: DataTypes.DATE, allowNull: false },
@@ -33,11 +33,15 @@ const Passcode = sequelize.define(
 
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
-  { tableName: "passcodes", timestamps: false }
+  { tableName: "passcodes", timestamps: false },
 );
 
 Reservation.hasOne(Passcode, { foreignKey: "reservation_id" });
-Passcode.belongsTo(Reservation, { foreignKey: "reservation_id", onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Passcode.belongsTo(Reservation, {
+  foreignKey: "reservation_id",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
 
 Room.hasOne(Passcode, { foreignKey: "room_id" });
 Passcode.belongsTo(Room, { foreignKey: "room_id" });

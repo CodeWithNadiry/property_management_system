@@ -27,7 +27,7 @@ export async function up(queryInterface, Sequelize) {
         "checked_in",
         "checked_out",
         "cancelled",
-        "noshow"
+        "noshow",
       ),
       defaultValue: "reserved",
     },
@@ -40,5 +40,5 @@ export async function up(queryInterface, Sequelize) {
 }
 
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('reservations')
+  await queryInterface.dropTable("reservations");
 }

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();  // <-- this loads all .env variables into process.env
+dotenv.config(); // <-- this loads all .env variables into process.env
 
 import express from "express";
 import cors from "cors";
@@ -11,10 +11,11 @@ import propertyRoutes from "./routes/property.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import lockRoutes from "./routes/lock.routes.js";
 import roomLockRoutes from "./routes/roomLock.routes.js";
-import reservationRoutes from './routes/reservation.routes.js'
+import reservationRoutes from "./routes/reservation.routes.js";
 import { createSuperAdmin } from "./middleware/createSuperAdmin.js";
 import { connectDB } from "./config/connectDB.js";
 import { startCronJobs } from "./cron/cron.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -23,11 +24,14 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["https://room-lock-management.vercel.app", "http://localhost:5173"],
+    origin: [
+      "https://room-lock-management.vercel.app",
+      "http://localhost:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 // Routes
@@ -37,17 +41,11 @@ app.use("/users", userRoutes);
 app.use("/properties", propertyRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/locks", lockRoutes);
-app.use("/room-lock", roomLockRoutes); 
-app.use('/reservations', reservationRoutes)
+app.use("/room-lock", roomLockRoutes);
+app.use("/reservations", reservationRoutes);
 
 // Global error handler
-app.use((error, req, res, next) => {
-  const status = error.statusCode || 500;
-  const message = error.message || "Something went wrong";
-  const data = error.data || null;
-
-  res.status(status).json({ message, data });
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
@@ -55,7 +53,7 @@ startCronJobs();
 const startServer = async () => {
   try {
     await connectDB();
-    await createSuperAdmin();    
+    await createSuperAdmin();
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });

@@ -13,7 +13,11 @@ const Properties = () => {
   const { token, role } = useAuthStore();
   const queryClient = useQueryClient();
 
-  const { data: properties = [], isLoading, isError } = useQuery({
+  const {
+    data: properties = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["properties"],
     queryFn: () => fetchProperties(),
     enabled: !!token,
@@ -21,15 +25,15 @@ const Properties = () => {
 
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId) => {
-      return await deleteProperty(propertyId)
+      return await deleteProperty(propertyId);
     },
     onSuccess: (message) => {
-      alert(message)
+      alert(message);
       queryClient.invalidateQueries(["properties"]);
     },
     onError(error) {
-      alert('Error: '+error.response?.data?.message)
-    }
+      alert("Error: " + error.response?.data?.message);
+    },
   });
 
   const handleDeleteProperty = (propertyId) => {
@@ -42,23 +46,37 @@ const Properties = () => {
   if (isError) return <span>Error loading properties</span>;
 
   const columns = [
-    {header: 'property Id', accessor: 'id'},
-    {header: 'Name', accessor: 'name'},
-    {header: 'Created At', accessor: 'created_at'}
-  ]
+    { header: "property Id", accessor: "id" },
+    { header: "Name", accessor: "name" },
+    { header: "Created At", accessor: "created_at" },
+  ];
 
-  const actions = role !== 'staff' ? [
-    {
-      label: 'Edit', onClick: (row) => openModal('properties', row), className: 'text-blue-600'
-    },
-    {
-      label: 'Delete', onClick: (row) => handleDeleteProperty(row.id), className: 'text-red-600', disabled: deletePropertyMutation.isPending
-    }
-  ]: [
-
-  ]
+  const actions =
+    role !== "staff"
+      ? [
+          {
+            label: "Edit",
+            onClick: (row) => openModal("properties", row),
+            className: "text-blue-600",
+          },
+          {
+            label: "Delete",
+            onClick: (row) => handleDeleteProperty(row.id),
+            className: "text-red-600",
+            disabled: deletePropertyMutation.isPending,
+          },
+        ]
+      : [];
   return (
-    <DataTable title='Properties' data={properties} columns={columns} actions={actions} isLoading={isLoading} isError={isError} onAdd={role !== 'staff' ? () => openModal('properties'): undefined} />
+    <DataTable
+      title="Properties"
+      data={properties}
+      columns={columns}
+      actions={actions}
+      isLoading={isLoading}
+      isError={isError}
+      onAdd={role !== "staff" ? () => openModal("properties") : undefined}
+    />
   );
 };
 

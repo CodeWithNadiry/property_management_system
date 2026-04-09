@@ -33,7 +33,7 @@ const ConfirmationForm = sequelize.define(
       defaultValue: DataTypes.NOW,
     },
   },
-  { tableName: "confirmation_forms", timestamps: false }
+  { tableName: "confirmation_forms", timestamps: false },
 );
 
 ConfirmationForm.belongsTo(Reservation, {
@@ -41,7 +41,8 @@ ConfirmationForm.belongsTo(Reservation, {
 });
 
 Reservation.hasOne(ConfirmationForm, {
-  foreignKey: "reservation_id", onDelete: 'CASCADE'
+  foreignKey: "reservation_id",
+  onDelete: "CASCADE",
 });
 
 export default ConfirmationForm;

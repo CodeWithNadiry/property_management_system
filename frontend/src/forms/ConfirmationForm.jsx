@@ -19,11 +19,10 @@ async function fetchConfirmationData(id, token) {
     `http://localhost:5000/reservations/${id}/confirm_form`,
     {
       headers: { Authorization: `Bearer ${token}` },
-      params: { id },
     },
   );
 
-  return res.data.reservation;
+  return res.data;
 }
 
 const ConfirmationForm = () => {
@@ -70,7 +69,6 @@ const ConfirmationForm = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log("User inputs", userInputs);
 
     const { name, email, phone, city, country, guestNumber } = userInputs;
 
@@ -90,7 +88,6 @@ const ConfirmationForm = () => {
         number_of_guests: guestNumber,
       };
 
-      
       await axios.post(
         `http://localhost:5000/reservations/${id}/confirm`,
         payload,
@@ -98,8 +95,8 @@ const ConfirmationForm = () => {
       );
       navigate("/confirmation-success");
     } catch (error) {
-      setError(error.response?.data?.message || error.message); 
-      
+      setError(error.response?.data?.message || error.message);
+
       // error.response.data.message is your backend custom message
     }
   }
@@ -121,7 +118,11 @@ const ConfirmationForm = () => {
 
         {error && (
           <div className="text-red-500 text-center">
-            {Array.isArray(error) ? error.map((err, i) => <p key={i}>{err}</p>) : <p>{error}</p>}
+            {Array.isArray(error) ? (
+              error.map((err, i) => <p key={i}>{err}</p>)
+            ) : (
+              <p>{error}</p>
+            )}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -193,7 +194,6 @@ const ConfirmationForm = () => {
 };
 
 export default ConfirmationForm;
-
 
 // error.message is the default error text created by:
 // JavaScript OR

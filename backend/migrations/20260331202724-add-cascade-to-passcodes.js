@@ -1,5 +1,8 @@
 export async function up(queryInterface) {
-  await queryInterface.removeConstraint("passcodes", "passcodes_reservation_id_fkey");
+  await queryInterface.removeConstraint(
+    "passcodes",
+    "passcodes_reservation_id_fkey",
+  );
 
   await queryInterface.addConstraint("passcodes", {
     fields: ["reservation_id"],
@@ -15,7 +18,10 @@ export async function up(queryInterface) {
 }
 
 export async function down(queryInterface) {
-  await queryInterface.removeConstraint("passcodes", "passcodes_reservation_id_fkey");
+  await queryInterface.removeConstraint(
+    "passcodes",
+    "passcodes_reservation_id_fkey",
+  );
 
   await queryInterface.addConstraint("passcodes", {
     fields: ["reservation_id"],

@@ -1,5 +1,8 @@
 import cron from "node-cron";
-import { sendCheckInReminderEmails, sendCheckOutReminderEmails } from "../jobs/check_in.job.js";
+import {
+  sendCheckInReminderEmails,
+  sendCheckOutReminderEmails,
+} from "../jobs/check_in.job.js";
 
 export function startCronJobs() {
   console.log("Cron jobs started");

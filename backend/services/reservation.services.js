@@ -6,200 +6,250 @@ import Passcode from "../models/passcode.model.js";
 import ConfirmationForm from "../models/confirmationForm.model.js";
 import { generateCode } from "../utils/generateCode.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { confirmReservationEmail } from "../utils/emailTemplate.js";
+import {
+  confirmReservationEmail,
+  passcodeEmail,
+} from "../utils/emailTemplate.js";
+import { AppError } from "../utils/AppError.js";
+import jwt from "jsonwebtoken";
 
-// ========= Helpers =============== //
+export const reservationService = {
+  async createReservation(data, property_id) {
+    const { name, email, phone, check_in, check_out, room_id } = data;
 
-const getRoom = async (room_id, property_id) => {
-  const room = await Room.findOne({ where: { id: room_id, property_id } });
-  if (!room) throw new Error("Room not found");
-  return room;
-};
+    const room = await Room.findOne({ where: { id: room_id, property_id } });
+    if (!room) throw new AppError("Room not found", 404);
 
-const checkAvailability = async (room, check_in, check_out) => {
-  const existingReservation = await Reservation.findOne({
-    where: {
-      room_id: room.id,
-      status: {
-        [Op.in]: ["pending", "confirmed", "checked_in"],
+    const existingReservation = await Reservation.findOne({
+      where: {
+        room_id: room.id,
+        status: { [Op.in]: ["pending", "confirmed", "checked_in"] },
+        [Op.and]: [
+          { check_in: { [Op.lt]: check_out } }, // if this true
+          { check_out: { [Op.gt]: check_in } }, // if this false.... TRUE && FALSE = FALSE /// no overlap
+        ],
       },
-      [Op.and]: [
-        { check_in: { [Op.lt]: check_out } },
-        { check_out: { [Op.gt]: check_in } },
-      ],
-    },
-  });
-
-  //   existing.check_in  <  new.check_out
-  // AND
-  // existing.check_out >  new.check_in
-
-  if (existingReservation) {
-    throw new Error("Room already booked for selected dates");
-  }
-};
-
-const calculatePrice = async (room, check_in, check_out) => {
-  const unitGroup = await UnitGroup.findOne({
-    where: { id: room.unit_group_id },
-  });
-  if (!unitGroup) throw new Error("Unit group not found");
-  const nights =
-    (new Date(check_out) - new Date(check_in)) / (1000 * 60 * 60 * 24);
-  return nights * parseFloat(unitGroup.price_per_night);
-};
-
-const createPasscode = async (reservation, room_id, check_in, check_out) => {
-  return await Passcode.create({
-    reservation_id: reservation.id,
-    room_id,
-    code: generateCode(),
-    valid_from: check_in,
-    valid_until: check_out,
-  });
-};
-
-const getReservationForConfirmation = async (reservation_id) => {
-  const reservation = await Reservation.findByPk(reservation_id, {
-    include: [ConfirmationForm],
-  });
-  if (!reservation || reservation.status !== "pending")
-    throw new Error("Reservation not available for confirmation.");
-  return reservation;
-};
-
-// const validatePasscode = async (reservation_id, passcode) => {
-//   const passcodeRecord = await Passcode.findOne({ where: { reservation_id } });
-//   if (!passcodeRecord || String(passcodeRecord.code) !== String(passcode)) throw new Error("Invalid passcode");
-//   return passcodeRecord;
-// };
-
-const checkAlreadyConfirmed = (reservation) => {
-  if (reservation.ConfirmationForm)
-    throw new Error("Guest has already confirmed");
-};
-
-const createConfirmationForm = async (data, reservation_id) => {
-  const { city, country, number_of_guests } = data;
-  return await ConfirmationForm.create({
-    reservation_id,
-    city,
-    country,
-    number_of_guests,
-  });
-};
-
-const updateCheckInStatus = async (reservation) => {
-  await reservation.update({ status: "confirmed" });
-  await Room.update(
-    { status: "reserved" },
-    { where: { id: reservation.room_id } },
-  );
-};
-
-// ========= Services ========= //
-export const createReservationService = async (data, property_id) => {
-  const { name, email, phone, check_in, check_out, room_id } = data;
-
-  const room = await getRoom(room_id, property_id);
-
-  await checkAvailability(room, check_in, check_out);
-
-  const total_price = await calculatePrice(room, check_in, check_out);
-
-  const reservation = await Reservation.create({
-    name,
-    email,
-    phone,
-    check_in,
-    check_out,
-    property_id,
-    room_id,
-    total_price,
-  });
-
-  const passcode = await createPasscode(
-    reservation,
-    room_id,
-    check_in,
-    check_out,
-  );
-
-  try {
-    await sendEmail({
-      to: reservation.email,
-      subject: "Reservation Confirmed",
-      html: confirmReservationEmail(reservation),
     });
 
-    console.log("sending confirmation email.");
-  } catch (error) {
-    console.log(error);
-  }
-  return { reservation, passcode };
-};
-export async function updateReservationService(filter, updateData) {
-  const reservation = await Reservation.findOne({
-    where: filter,
-  });
+    if (existingReservation)
+      throw new AppError("Room already booked for selected dates", 422);
 
-  if (!reservation) {
-    const error = new Error("Reservation not found");
-    error.statusCode = 404;
-    throw error;
-  }
+    const unitGroup = await UnitGroup.findByPk(room.unit_group_id);
+    if (!unitGroup) throw new AppError("Unit group not found", 404);
 
-  await reservation.update(updateData);
+    const nights =
+      (new Date(check_out) - new Date(check_in)) / (1000 * 60 * 60 * 24);
 
-  return reservation;
-}
+    const total_price = nights * parseFloat(unitGroup.price_per_night);
 
-export const cancelReservationService = async (reservation_id) => {
-  const reservation = await Reservation.findOne({
-    where: { id: reservation_id },
-  });
-  if (!reservation) throw new Error("Reservation not found");
-  if (!["confirmed"].includes(reservation.status))
-    throw new Error("Only confirmed reservations can be cancelled");
-  reservation.status = "cancelled";
-  await reservation.save();
-  await Room.update(
-    { status: "available" },
-    { where: { id: reservation.room_id } },
-  );
-  await Passcode.update(
-    { status: "expired" },
-    { where: { reservation_id: reservation.id } },
-  );
-  return { reservation };
-};
+    const reservation = await Reservation.create({
+      name,
+      email,
+      phone,
+      check_in,
+      check_out,
+      property_id,
+      room_id,
+      total_price,
+    });
 
-export const guestConfirmService = async (data, reservation_id) => {
-  const reservation = await getReservationForConfirmation(reservation_id);
-  checkAlreadyConfirmed(reservation);
-  const confirmationForm = await createConfirmationForm(data, reservation_id);
-  await updateCheckInStatus(reservation);
-  return confirmationForm;
-};
+    const passcode = await Passcode.create({
+      reservation_id: reservation.id,
+      room_id,
+      code: generateCode(),
+      valid_from: check_in,
+      valid_until: check_out,
+    });
 
-export const guestCheckOutService = async (reservation_id) => {
-  const reservation = await Reservation.findByPk(reservation_id, {
-    include: [ConfirmationForm],
-  });
+    try {
+      await sendEmail({
+        to: reservation.email,
+        subject: "Reservation Confirmation",
+        html: confirmReservationEmail(reservation),
+      });
+    } catch (err) {
+      console.log("Email failed:", err.message);
+    }
 
-  if (!reservation || reservation.status !== "checked_in") {
-    throw new Error("Reservation is not checked in already.");
-  }
+    return { reservation, passcode };
+  },
 
-  reservation.status = "checked_out";
-  await reservation.save();
+  async updateReservation(filter, data) {
+    const reservation = await Reservation.findOne({ where: filter });
+    if (!reservation) throw new AppError("Reservation not found", 404);
 
-  await Room.update(
-    { status: "available" },
-    { where: { id: reservation.room_id } },
-  );
+    await reservation.update(data);
+    return reservation;
+  },
 
-  await Passcode.update({ status: "expired" }, { where: { reservation_id } });
+  async getReservations(filter = {}) {
+    return Reservation.findAll({
+      where: filter,
+      order: [["created_at", "DESC"]],
+    });
+  },
 
-  return reservation;
+  async getReservation(filter) {
+    const reservation = await Reservation.findOne({ where: filter });
+    if (!reservation) throw new AppError("Reservation not found", 404);
+    return reservation;
+  },
+
+  async cancelReservation(id) {
+    const reservation = await Reservation.findByPk(id);
+    if (!reservation) throw new AppError("Reservation not found", 404);
+
+    if (reservation.status !== "confirmed")
+      throw new AppError("Only confirmed reservations can be cancelled", 400);
+
+    await reservation.update({ status: "cancelled" });
+
+    await Room.update(
+      { status: "available" },
+      { where: { id: reservation.room_id } },
+    );
+
+    await Passcode.update(
+      { status: "expired" },
+      { where: { reservation_id: id } },
+    );
+
+    return { reservation };
+  },
+
+  async guestConfirm(data, id) {
+    const reservation = await Reservation.findByPk(id, {
+      // get the reservation by its id and also include the related ConfirmationForm(but only the id and status fields.)
+      include: [ConfirmationForm],
+    });
+
+    if (!reservation || reservation.status !== "pending")
+      throw new AppError("Reservation not available", 400);
+
+    if (reservation.ConfirmationForm)
+      throw new AppError("Already confirmed", 400);
+
+    const confirmationForm = await ConfirmationForm.create({
+      reservation_id: id,
+      ...data,
+    });
+
+    await reservation.update({ status: "confirmed" });
+
+    await Room.update(
+      { status: "reserved" },
+      { where: { id: reservation.room_id } },
+    );
+
+    return confirmationForm;
+  },
+
+  async guestCheckIn(token) {
+    if (!token) throw new AppError("Token is required", 400);
+
+    const decoded = jwt.verify(token, "super");
+
+    const reservation = await Reservation.findByPk(decoded.reservation_id, {
+      include: [ConfirmationForm],
+    });
+
+    if (!reservation) throw new AppError("Reservation not available", 404);
+
+    const passcode = await Passcode.findOne({
+      where: { reservation_id: reservation.id },
+    });
+
+    if (!passcode) throw new AppError("Passcode not found", 404);
+
+    if (!reservation.ConfirmationForm)
+      throw new AppError("Confirmation required before check-in", 400);
+
+    if (reservation.status === "checked_in") {
+      return { message: "Already checked in", passcode: passcode.code };
+    }
+
+    await reservation.update({ status: "checked_in" });
+
+    try {
+      await sendEmail({
+        to: reservation.email,
+        subject: "Checked in",
+        html: passcodeEmail({
+          name: reservation.name,
+          passcode: passcode.code,
+        }),
+      });
+    } catch (err) {
+      console.log("Email failed");
+    }
+
+    return { message: "Checked in successfully", passcode: passcode.code };
+  },
+
+  async guestFrontDeskCheckIn(reservation_id) {
+    const reservation = await Reservation.findByPk(reservation_id, {
+      include: [Passcode],
+    });
+
+    if (!reservation) throw new AppError("Reservation not found", 404);
+
+    if (reservation.status === "checked_in") {
+      return {
+        message: "Already checked in",
+        passcode: reservation.Passcode.code,
+      };
+    }
+
+    await reservation.update({ status: "checked_in" });
+
+    return {
+      message: "Checked in successfully",
+      passcode: reservation.Passcode.code,
+    };
+  },
+
+  async guestCheckOut(id) {
+    const reservation = await Reservation.findByPk(id);
+
+    if (!reservation || reservation.status !== "checked_in")
+      throw new AppError("Reservation is not checked in", 400);
+
+    await reservation.update({ status: "checked_out" });
+
+    await Room.update(
+      { status: "available" },
+      { where: { id: reservation.room_id } },
+    );
+
+    await Passcode.update(
+      { status: "expired" },
+      { where: { reservation_id: id } },
+    );
+
+    return reservation;
+  },
+
+  async guestNoShow(id) {
+    const reservation = await Reservation.findByPk(id);
+
+    if (!reservation) throw new AppError("Reservation not found", 404);
+
+    if (reservation.status !== "confirmed")
+      throw new AppError("Only confirmed reservations allowed", 400);
+
+    await reservation.update({ status: "noshow" });
+
+    await Passcode.update(
+      { status: "expired" },
+      { where: { reservation_id: id } },
+    );
+
+    return reservation;
+  },
+
+  async findReservationById(id) {
+    const reservation = await Reservation.findByPk(id);
+    if (!reservation) throw new AppError("Reservatoin not found", 404);
+    return reservation;
+  },
 };

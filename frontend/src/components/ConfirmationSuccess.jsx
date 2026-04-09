@@ -7,11 +7,12 @@ const ConfirmationSuccess = () => {
         </h1>
 
         <p className="text-gray-600 mb-6">
-          Your form has been submitted successfully. You can now safely leave this page.
+          Your form has been submitted successfully. You can now safely leave
+          this page.
         </p>
 
         <button
-          onClick={() => window.location.href = '/'}
+          onClick={() => (window.location.href = "/")}
           className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
         >
           Go to Home

@@ -1,17 +1,32 @@
 import { Router } from "express";
-import { assignLock, unassignLock, getAllConnections, editAssignLock, getUnAssignedLocks, getUnAssignedRooms } from "../controllers/roomLock.controller.js";
 import { isAuth } from "../middleware/isAuth.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-import { assignLockSchema, editAssignLockSchema } from "../schemas/roomLock.schema.js";
+import {
+  assignLockSchema,
+  editAssignLockSchema,
+} from "../schemas/roomLock.schema.js";
+import {
+  create,
+  getAll,
+  getLocksUnAssigned,
+  getRoomsUnAssigned,
+  remove,
+  update,
+} from "../controllers/roomLock.controller.js";
 
 const router = Router();
 
-router.get("/", isAuth, getAllConnections);
-router.get('/unassigned-locks', getUnAssignedLocks)
-router.get('/unassigned-rooms', getUnAssignedRooms)
+router.get("/", isAuth, getAll);
+router.get("/unassigned-locks", getLocksUnAssigned);
+router.get("/unassigned-rooms", getRoomsUnAssigned);
 
-router.post("/assign", validateRequest(assignLockSchema), isAuth, assignLock);
-router.patch('/edit-assign/:id', validateRequest(editAssignLockSchema), isAuth, editAssignLock)
-router.post("/unassign", isAuth, unassignLock);
+router.post("/assign", validateRequest(assignLockSchema), isAuth, create);
+router.patch(
+  "/edit-assign/:id",
+  validateRequest(editAssignLockSchema),
+  isAuth,
+  update,
+);
+router.delete("/unassign/:id", isAuth, remove);
 
 export default router;

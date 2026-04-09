@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 export const createSuperAdmin = async () => {
   try {
     const existingAdmin = await User.findOne({
-      where: { role: "superadmin" }
+      where: { role: "superadmin" },
     });
 
     if (existingAdmin) {
@@ -14,7 +14,7 @@ export const createSuperAdmin = async () => {
 
     const hashedPassword = await bcrypt.hash(
       process.env.SUPER_ADMIN_PASSWORD,
-      12
+      12,
     );
 
     await User.create({

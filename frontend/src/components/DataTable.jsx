@@ -42,7 +42,8 @@ const DataTable = ({
                     <span>No {title.toLowerCase()} found</span>
                     {onAdd && (
                       <Button onClick={onAdd}>
-                        Create your first {title.slice(0, -1)} {/* str.slice(startIndex, endIndex)*/}
+                        Create your first {title.slice(0, -1)}{" "}
+                        {/* str.slice(startIndex, endIndex)*/}
                       </Button>
                     )}
                   </div>
@@ -50,10 +51,13 @@ const DataTable = ({
               </tr>
             ) : (
               data.map((row) => (
-                <tr key={row.id} className="border-b border-zinc-200 hover:bg-gray-100">
+                <tr
+                  key={row.id}
+                  className="border-b border-zinc-200 hover:bg-gray-100"
+                >
                   {columns.map((col) => (
                     <td key={col.accessor} className="py-3">
-                      {row[col.accessor] ? row[col.accessor]: 'Null'}
+                      {row[col.accessor] ? row[col.accessor] : "Null"}
                     </td>
                   ))}
 

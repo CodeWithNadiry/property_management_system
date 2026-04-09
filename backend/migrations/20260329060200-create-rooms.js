@@ -1,8 +1,7 @@
-
-'use strict';
+"use strict";
 
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('rooms', {
+  await queryInterface.createTable("rooms", {
     id: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -13,11 +12,11 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'properties',
-        key: 'id',
+        model: "properties",
+        key: "id",
       },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
     room_number: {
       type: Sequelize.STRING(20),
@@ -30,11 +29,11 @@ export async function up(queryInterface, Sequelize) {
     created_at: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.literal('NOW()'),
+      defaultValue: Sequelize.literal("NOW()"),
     },
   });
 }
 
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('rooms');
+  await queryInterface.dropTable("rooms");
 }

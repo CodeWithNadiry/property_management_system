@@ -1,26 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DataTable from "../components/DataTable";
 import usePropertyStore from "../store/PropertyStore";
 import useAuthStore from "../store/AuthStore";
-import axios from "axios";
 import useModalStore from "../store/ModalStore";
+import { useAction } from "../hooks/useAction";
+import { useList } from "../hooks/useList";
+import { deleteLock as deleteLockApi, getAllLocks } from "../api/locks.service";
 
-async function fetchLocks(token, propertyId) {
-  const res = await axios.get("http://localhost:5000/locks", {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { property_id: propertyId },
-  });
-
-  return res.data.locks;
+async function fetchLocks(propertyId) {
+  const data = await getAllLocks(propertyId);
+  return data.locks;
 }
 
-async function deleteLock(lockId, token) {
-  console.log("Lock id:", lockId);
-  console.log("token:", token);
-
-  await axios.delete(`http://localhost:5000/locks/${lockId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+async function deleteLock(id) {
+  const data = await deleteLockApi(id);
+  return data.message;
 }
 
 const Locks = ({ onDashboard }) => {
@@ -30,34 +23,28 @@ const Locks = ({ onDashboard }) => {
   const user = useAuthStore((state) => state.user);
   const openModal = useModalStore(({ openModal }) => openModal);
 
-  const queryClient = useQueryClient();
-
   const propertyId =
-    role === "superadmin"
-      ? activeProperty?.id
-      : user?.property_id;
+    role === "superadmin" ? activeProperty?.id : user?.property_id;
 
   const {
-    data: locks,
+    data: locks = [],
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["locks", propertyId],
-    queryFn: () => fetchLocks(token, propertyId),
-    enabled: !!token && !!propertyId,
+  } = useList({
+    key: "locks",
+    propertyId,
+    fn: () => fetchLocks(propertyId),
+    token,
+  });
+  const { mutate, isPending } = useAction({
+    key: "locks",
+    fn: deleteLock,
+    propertyId,
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: ({ lockId, token }) => deleteLock(lockId, token),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["locks", propertyId]);
-    },
-    onError: (err) => console.log(err),
-  });
-
-  function handleDeleteLock(lockId) {
+  function handleDeleteLock(id) {
     if (window.confirm("Are you sure you want to delete the lock?")) {
-      mutate({ lockId, token });
+      mutate(id);
     }
   }
 
@@ -67,19 +54,19 @@ const Locks = ({ onDashboard }) => {
     { header: "Serial No.", accessor: "serial_number" },
   ];
 
-  const actions =[
-          {
-            label: "Edit",
-            onClick: (row) => openModal("locks", row),
-            className: "text-blue-600",
-          },
-          {
-            label: "Delete",
-            onClick: (row) => handleDeleteLock(row.id),
-            disabled: isPending,
-            className: "text-red-600",
-          },
-        ]
+  const actions = [
+    {
+      label: "Edit",
+      onClick: (row) => openModal("locks", row),
+      className: "text-blue-600",
+    },
+    {
+      label: "Delete",
+      onClick: (row) => handleDeleteLock(row.id),
+      disabled: isPending,
+      className: "text-red-600",
+    },
+  ];
 
   return (
     <DataTable
@@ -89,11 +76,7 @@ const Locks = ({ onDashboard }) => {
       actions={actions}
       isLoading={isLoading}
       isError={isError}
-      onAdd={
-        !onDashboard
-          ? () => openModal("locks")
-          : undefined
-      }
+      onAdd={!onDashboard ? () => openModal("locks") : undefined}
     />
   );
 };

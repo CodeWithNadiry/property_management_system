@@ -2,10 +2,10 @@ import { Op } from "sequelize";
 import Reservation from "../models/reservation.model.js";
 import { checkInEmail, checkOutEmail } from "../utils/emailTemplate.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { guestCheckOutService } from "../services/reservation.services.js";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
+import { reservationService } from "../services/reservation.services.js";
 // By default, Sequelize assumes equality (e.g., id: 5 becomes WHERE id = 5). The Op object allows you to use other SQL comparisons and logical conditions:
-console.log('running')
+console.log("running");
 export const sendCheckInReminderEmails = async () => {
   try {
     const today = new Date();
@@ -14,14 +14,20 @@ export const sendCheckInReminderEmails = async () => {
       today.getFullYear(),
       today.getMonth(),
       today.getDate(),
-      0, 0, 0, 0
+      0,
+      0,
+      0,
+      0,
     );
 
     const endOfDay = new Date(
       today.getFullYear(),
       today.getMonth(),
       today.getDate(),
-      23, 59, 59, 999
+      23,
+      59,
+      59,
+      999,
     );
 
     console.log("Running check-in email job...");
@@ -36,29 +42,32 @@ export const sendCheckInReminderEmails = async () => {
 
     console.log("Reservations found:", reservations.length);
 
-    await Promise.all(reservations.map(async (reservation) => {
-      console.log('reservation id:', reservation.id)
+    await Promise.all(
+      reservations.map(async (reservation) => {
+        const token = jwt.sign(
+          {
+            email: reservation.email,
+            reservation_id: reservation.id,
+            check_in: reservation.check_in,
+            check_out: reservation.check_out,
+          },
+          "super",
+          { expiresIn: "1hr" },
+        );
 
-      const token = jwt.sign({
-        email: reservation.email,
-        reservation_id: reservation.id,
-        check_in: reservation.check_in,
-        check_out: reservation.check_out,
-      }, 'super', {expiresIn: '1hr'})
+        try {
+          await sendEmail({
+            to: reservation.email,
+            subject: "Check-In Reminder",
+            html: checkInEmail(token),
+          });
 
-      console.log('check in email token', token)
-      try {
-        await sendEmail({
-          to: reservation.email,
-          subject: 'Check-In Reminder',
-          html: checkInEmail(token)
-        })
-
-        console.log('Email sent to:', reservation.email)
-      } catch (error) {
-        console.error('Email failed for:', reservation.email, error)
-      }
-    }))
+          console.log("Email sent to:", reservation.email);
+        } catch (error) {
+          console.error("Email failed for:", reservation.email, error);
+        }
+      }),
+    );
   } catch (error) {
     console.error("Error in check-in email job:", error);
   }
@@ -72,14 +81,20 @@ export const sendCheckOutReminderEmails = async () => {
       today.getFullYear(),
       today.getMonth(),
       today.getDate(),
-      0, 0, 0, 0
+      0,
+      0,
+      0,
+      0,
     );
 
     const endOfDay = new Date(
       today.getFullYear(),
       today.getMonth(),
       today.getDate(),
-      23, 59, 59, 999
+      23,
+      59,
+      59,
+      999,
     );
 
     console.log("Running check-out email job...");
@@ -98,7 +113,7 @@ export const sendCheckOutReminderEmails = async () => {
     await Promise.all(
       reservations.map(async (reservation) => {
         try {
-          await guestCheckOutService(reservation.id);
+          await reservationService.guestCheckOut(reservation.id);
 
           await sendEmail({
             to: reservation.email,
@@ -110,7 +125,7 @@ export const sendCheckOutReminderEmails = async () => {
         } catch (err) {
           console.error("Email failed for:", reservation.email, err);
         }
-      })
+      }),
     );
   } catch (error) {
     console.error("Error in check-out email job:", error);

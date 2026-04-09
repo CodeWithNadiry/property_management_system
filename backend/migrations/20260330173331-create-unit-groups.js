@@ -26,5 +26,5 @@ export async function up(queryInterface, Sequelize) {
 }
 
 export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('unit_groups')
+  await queryInterface.dropTable("unit_groups");
 }

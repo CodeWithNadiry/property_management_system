@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
 const StatsCard = ({ title, quantity, icon: Icon, to = "#" }) => {
-  
   return (
     <Link
       to={to}
