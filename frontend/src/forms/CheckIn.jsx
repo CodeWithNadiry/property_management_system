@@ -14,7 +14,7 @@ const CheckIn = () => {
     async function verifyToken() {
       try {
         const res = await axios.post(
-          "http://localhost:5000/reservations/check_in",
+          "https://property-management-system-ht59.vercel.app/reservations/check_in",
           { token: urlToken },
           {
             headers: { Authorization: `Bearer ${token}` },

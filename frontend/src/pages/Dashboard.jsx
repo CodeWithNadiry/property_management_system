@@ -17,14 +17,17 @@ function Dashboard() {
   const fetchStats = async () => {
     if (!propertyId) return {};
 
-    const res = await axios.get("http://localhost:5000/dashboard-stats", {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await axios.get(
+      "https://property-management-system-ht59.vercel.app/dashboard-stats",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          property_id: propertyId,
+        },
       },
-      params: {
-        property_id: propertyId,
-      },
-    });
+    );
 
     return res.data;
   };

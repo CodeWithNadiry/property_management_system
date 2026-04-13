@@ -16,7 +16,7 @@ import { formattedDate } from "../utils/formattedDate";
 import { formattedPrice } from "../utils/formattedPrice";
 import useModalStore from "../store/ModalStore";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://property-management-system-ht59.vercel.app";
 
 async function fetchReservation(id, token, propertyId) {
   const res = await axios.get(`${BASE_URL}/reservations/${id}`, {

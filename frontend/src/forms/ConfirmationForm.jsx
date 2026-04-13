@@ -16,7 +16,7 @@ import { confirmationSchema } from "../schemas/confirmation.schema";
 
 async function fetchConfirmationData(id, token) {
   const res = await axios.get(
-    `http://localhost:5000/reservations/${id}/confirm_form`,
+    `https://property-management-system-ht59.vercel.app/reservations/${id}/confirm_form`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },
@@ -89,7 +89,7 @@ const ConfirmationForm = () => {
       };
 
       await axios.post(
-        `http://localhost:5000/reservations/${id}/confirm`,
+        `https://property-management-system-ht59.vercel.app/reservations/${id}/confirm`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } },
       );

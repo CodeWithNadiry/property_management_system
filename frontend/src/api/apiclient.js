@@ -2,7 +2,7 @@ import axios from "axios";
 import useAuthStore from "../store/AuthStore";
 
 export const apiClient = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://property-management-system-ht59.vercel.app",
 });
 
 apiClient.interceptors.request.use((config) => {

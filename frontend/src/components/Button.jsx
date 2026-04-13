@@ -8,7 +8,7 @@ const StyledButton = styled.button`
   border: none;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   transition: background-color 0.2s ease;
-
+flex items-center gap-4 text-[#3B82F6] rounded-4xl px-6 py-2 bg-white cursor-pointer
   background-color: ${({ variant, disabled }) => {
     if (disabled) return "var(--gray-blue)";
 

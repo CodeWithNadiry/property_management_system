@@ -15,10 +15,13 @@ async function loginAction(prevState, formData, login, navigate) {
   }
 
   try {
-    const res = await axios.post("http://localhost:5000/auth/login", {
-      email,
-      password,
-    });
+    const res = await axios.post(
+      "https://property-management-system-ht59.vercel.app/auth/login",
+      {
+        email,
+        password,
+      },
+    );
 
     login({
       token: res.data.token,

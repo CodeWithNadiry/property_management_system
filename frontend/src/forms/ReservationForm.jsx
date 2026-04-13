@@ -110,13 +110,16 @@ const ReservationForm = ({ data }) => {
     try {
       setLoadingRooms(true);
 
-      const res = await axios.get("http://localhost:5000/rooms/available", {
-        params: {
-          check_in: values.check_in,
-          check_out: values.check_out,
-          property_id: propertyId,
+      const res = await axios.get(
+        "https://property-management-system-ht59.vercel.app/rooms/available",
+        {
+          params: {
+            check_in: values.check_in,
+            check_out: values.check_out,
+            property_id: propertyId,
+          },
         },
-      });
+      );
 
       setAvailableRooms(res.data.availableRooms);
     } catch (error) {
